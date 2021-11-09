@@ -1,17 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="Program.fs" />
-    <Content Include="readme.md" />
-    <Content Include="hello-world.md">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Compile Include=".gitignore" />
-  </ItemGroup>
+    <ItemGroup>
+        <Compile Include="HelloWorldAsync/Program.fs"/>
+    </ItemGroup>
 
 </Project>

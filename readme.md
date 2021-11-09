@@ -15,18 +15,33 @@ Asynchronous F# programming sandbox.
   * transform
   
   asynchronous operations.
-* `async { }` - computation expression
+  
+  Examples:
+  
+  * `Async.RunSynchronously`
+  * `Async.StartImmediate`
+  * `Async.StartChildAsTask`
 
 ## the gist
 
-* `async { }`
-* `let!`
-* `Task<T> -> Async<T>`
+* `async { }` - computation expression/asynchronous expression. All expressions of such form are of type `Async<T>` for some `T`. [*source*](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/async-padl-revised-v2.pdf)
+* `expr := async { aexpr }` - complete syntax for asynchronous expressions.
+* selected `aexpr` examples:
+  * `do!` - execute async (`Async<unit>`).
+  * `let!` - execute and bind async (`Async<T>`).
+* `Task<T> -> Async<T>` - interop translation of C# `Task<T>` to F# `Async<T>`.
+* asynchronous function - normal function or method, but returning an asynchronous computation. It is common for asynchronous funcitons to have their entire bodies enclosed in `async { }`.
+* cancellation:
+  * C# `CancellationTokenSource` and `CancellationToken` are both supported.
+  * cancellation tokens are implicitly propagated through the execution of an asynchronous operation.
+  * Cancellation tokens are provided at the entry point to the execution of an asynchronous computation, e.g.:
+    * `Async.RunSynchronously`
+    * `Async.StartImmediate`
 
 ## reading
 
-* [Async programming in F#](https://docs.microsoft.com/en-us/dotnet/fsharp/tutorials/asynchronous-and-concurrent-programming/async)
-* [The F# Asynchronous Programming Model](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/async-padl-revised-v2.pdf)
-* [Asynchronous programming](https://fsharpforfunandprofit.com/posts/concurrency-async-and-parallel/)
-* [Async in C# and F# Asynchronous gotchas in C#](http://tomasp.net/blog/csharp-async-gotchas.aspx/)
-* [F# Async Guide](https://medium.com/@eulerfx/f-async-guide-eb3c8a2d180a)
+* [x] [Async programming in F#](https://docs.microsoft.com/en-us/dotnet/fsharp/tutorials/asynchronous-and-concurrent-programming/async)
+* [ ] [The F# Asynchronous Programming Model](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/async-padl-revised-v2.pdf)
+* [ ] [Asynchronous programming](https://fsharpforfunandprofit.com/posts/concurrency-async-and-parallel/)
+* [ ] [Async in C# and F# Asynchronous gotchas in C#](http://tomasp.net/blog/csharp-async-gotchas.aspx/)
+* [ ] [F# Async Guide](https://medium.com/@eulerfx/f-async-guide-eb3c8a2d180a)
