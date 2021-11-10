@@ -6,7 +6,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="HelloWorldAsync/Program.fs"/>
+        <Compile Include="HelloWorldAsync/Program.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FSharp.Data" Version="4.2.4" />
     </ItemGroup>
 
 </Project>
