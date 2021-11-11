@@ -87,8 +87,8 @@ let scenario4 () =
                 // --------------
                 // This will trigger an exception:
                 do! getWebPage "abc"
-                // This will not:
-                // do! getWebPage "http://www.google.com"
+            // This will not:
+            // do! getWebPage "http://www.google.com"
             with
             | _ -> printfn "getWebPageContentLength failed"
         }
@@ -102,7 +102,87 @@ let scenario4 () =
 
     printfn "scenario4 finished"
 
+let scenario5c () =
+    async {
+        printfn "scenario5c started"
+
+        do! getWebPage "http://www.google.com"
+
+        printfn "scenario5c finished"
+    }
+
+let scenario5b () =
+    async {
+        printfn "scenario5b started"
+
+        do! scenario5c ()
+
+        printfn "scenario5b finished"
+    }
+
+let scenario5a () =
+    async {
+        printfn "scenario5a started"
+
+        do! scenario5b ()
+
+        printfn "scenario5a finished"
+    }
+
+// 2021-11-11 PJ:
+// --------------
+// This demonstrates implicit propagation of the cancellation token
+// through a chain of nested asynchronous computations.
+//
+// Question:
+//
+// * immediate cancellations (cancelling the external call) produce this:
+//
+//   scenario5's job started
+//   scenario5a started
+//   scenario5b started
+//   scenario5c started
+//   scenario5 finished
+//
+// * delayed cancellations (not cancelling the external call) produce this:
+//
+//   scenario5's job started
+//   scenario5a started
+//   scenario5b started
+//   scenario5c started
+//   content length: 49723 characters
+//   scenario5c finished
+//   scenario5b finished
+//   scenario5a finished
+//   scenario5's job finished
+//
+// Why?
+// The documentation (https://docs.microsoft.com/en-us/dotnet/fsharp/tutorials/async#asyncstart) states:
+// "If the parent computation is canceled, no child computations are canceled."
+// But in this case, the child computations seem to be cancelled when the parent gets cancelled.
+let scenario5 () =
+    let job =
+        async {
+            printfn "scenario5's job started"
+
+            do! scenario5a ()
+
+            printfn "scenario5's job finished"
+        }
+
+    let capability =
+        new CancellationTokenSource(System.TimeSpan.FromMilliseconds(500.0))
+
+    Async.Start(job, capability.Token)
+
+    // 2021-11-10 PJ:
+    // --------------
+    // Dummy wait to make sure the request finishes.
+    Async.RunSynchronously(async { do! Async.Sleep(2000) })
+
+    printfn "scenario5 finished"
+
 [<EntryPoint>]
 let main argv =
-    scenario4 ()
+    scenario5 ()
     0
