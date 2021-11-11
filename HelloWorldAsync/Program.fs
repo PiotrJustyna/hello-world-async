@@ -11,6 +11,7 @@ open FSharp.Data
 let getWebPage (url: string) =
     async {
         let! response = Http.AsyncRequestString(url)
+
         printfn $"content length: %d{response.Length} characters"
     }
 
@@ -39,7 +40,7 @@ let scenario1 () =
 // The work does not get cancelled.
 let scenario2 () =
     let capability = new CancellationTokenSource()
-    
+
     Async.Start(getWebPage "http://www.google.com", capability.Token)
 
     // 2021-11-10 PJ:
@@ -70,7 +71,38 @@ let scenario3 () =
 
     printfn "scenario3 finished"
 
+// 2021-11-10 PJ:
+// --------------
+// This demonstrates:
+// * implicit propagation of the cancellation token (50ms will always cancel the request)
+// * exception catching in async context
+let scenario4 () =
+    let capability =
+        new CancellationTokenSource(System.TimeSpan.FromMilliseconds(200.0))
+
+    let throwingJob =
+        async {
+            try
+                // 2021-11-10 PJ:
+                // --------------
+                // This will trigger an exception:
+                do! getWebPage "abc"
+                // This will not:
+                // do! getWebPage "http://www.google.com"
+            with
+            | _ -> printfn "getWebPageContentLength failed"
+        }
+
+    Async.Start(throwingJob, capability.Token)
+
+    // 2021-11-10 PJ:
+    // --------------
+    // Dummy wait to make sure the request finishes.
+    Async.RunSynchronously(async { do! Async.Sleep(5000) })
+
+    printfn "scenario4 finished"
+
 [<EntryPoint>]
 let main argv =
-    scenario1 ()
+    scenario4 ()
     0

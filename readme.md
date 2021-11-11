@@ -40,7 +40,9 @@ Asynchronous F# programming sandbox.
     * `Async.RunSynchronously`
     * `Async.StartImmediate`
 * exceptions:
-  * TODO
+  * [x] basic exceptions
+  * [ ] nested exceptions
+  * [ ] nested cancellations
 
 ## reading
 
