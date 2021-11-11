@@ -106,7 +106,7 @@ let scenario5c () =
     async {
         printfn "scenario5c started"
 
-        do! getWebPage "http://www.google.com"
+        do! getWebPage "http://www.google.com" |> Async.StartChild |> Async.Ignore
 
         printfn "scenario5c finished"
     }
@@ -115,7 +115,7 @@ let scenario5b () =
     async {
         printfn "scenario5b started"
 
-        do! scenario5c ()
+        do! scenario5c () |> Async.StartChild |> Async.Ignore
 
         printfn "scenario5b finished"
     }
@@ -124,7 +124,7 @@ let scenario5a () =
     async {
         printfn "scenario5a started"
 
-        do! scenario5b ()
+        do! scenario5b () |> Async.StartChild |> Async.Ignore
 
         printfn "scenario5a finished"
     }
@@ -165,13 +165,14 @@ let scenario5 () =
         async {
             printfn "scenario5's job started"
 
-            do! scenario5a ()
+            do!
+                scenario5a () |> Async.StartChild |> Async.Ignore
 
             printfn "scenario5's job finished"
         }
 
     let capability =
-        new CancellationTokenSource(System.TimeSpan.FromMilliseconds(500.0))
+        new CancellationTokenSource(System.TimeSpan.FromMilliseconds(50.0))
 
     Async.Start(job, capability.Token)
 
