@@ -42,10 +42,10 @@ Asynchronous F# programming sandbox.
 * exceptions:
   * [x] basic exceptions
   * [ ] nested exceptions
-  * [ ] nested cancellations. TODO: separate examples and directory for (+ type signatures):
-    * [ ] do! inline
-    * [ ] Async.Start
-    * [ ] Async.StartChild (intentation for `do!`)
+  * [x] nested cancellations. Separate examples for (+ type signatures):
+    * [x] do! inline
+    * [x] Async.Start
+    * [x] Async.StartChild (intentation for `do!`)
     
     reference: https://stackoverflow.com/questions/15284209/async-start-vs-async-startchild
 
