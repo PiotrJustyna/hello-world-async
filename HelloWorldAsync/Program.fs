@@ -1,3 +1,4 @@
+open System
 open System.Net
 open System.Threading
 open FSharp.Data
@@ -106,7 +107,10 @@ let scenario5c () =
     async {
         printfn "scenario5c started"
 
-        do! getWebPage "http://www.google.com" |> Async.StartChild |> Async.Ignore
+        do!
+            getWebPage "http://www.google.com"
+            |> Async.StartChild
+            |> Async.Ignore
 
         printfn "scenario5c finished"
     }
@@ -165,8 +169,7 @@ let scenario5 () =
         async {
             printfn "scenario5's job started"
 
-            do!
-                scenario5a () |> Async.StartChild |> Async.Ignore
+            do! scenario5a () |> Async.StartChild |> Async.Ignore
 
             printfn "scenario5's job finished"
         }
@@ -183,7 +186,61 @@ let scenario5 () =
 
     printfn "scenario5 finished"
 
+// 2021-11-15 PJ:
+// --------------
+// I spent way too much time on this code and then found this answer.
+// The fact that the exception does not get propagated to the caller is kind of confusing:
+// indeed it is not propagated to the caller, but since the exception is thrown in the thread pool
+// and is unhandled, it terminates the process which leads the inexperienced reader to believe
+// that the exception really did get propagated to the caller.
+// More here:
+// https://stackoverflow.com/a/55694256/224612
+let someFunctionA () =
+    let job =
+        async {
+            try
+                raise <| new InvalidOperationException()
+            with _ -> printfn "expected failure"
+        }
+
+    // Surrounding this with "try-with" will not catch the exception, Async.Catch will (someFunctionB)
+    Async.Start job
+
+    Async.RunSynchronously(async { do! Async.Sleep(2000) })
+
+    printfn "someFunction finished"
+
+let someFunctionB () =
+    let job1 =
+        async {
+            raise <| new InvalidOperationException()
+        }
+
+    let job2 =
+        async {
+            do! job1
+        }
+    
+    let job3 =
+        async {
+            let! wer = job2 |> Async.Catch
+
+            match wer with
+                | Choice1Of2 _ -> printfn "choice 1"
+                | Choice2Of2 _ -> printfn "choice 2"
+        }
+
+    Async.Start(job3)
+
+    // Async.Catch + Choice
+    // article: StartChild vs Start - relevant for async catch?
+    // experiment + article: Interop
+
+    Async.RunSynchronously(async { do! Async.Sleep(2000) })
+
+    printfn "someFunction finished"
+
 [<EntryPoint>]
 let main argv =
-    scenario5 ()
+    someFunctionB ()
     0
